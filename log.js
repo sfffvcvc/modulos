@@ -11,7 +11,7 @@ class Login{
     static callback_ok=null
     static callback_naook=null
     static config={
-        cor:'whitesmoke',img:'Ícone minimalista de halter.png'
+        cor:'whitesmoke',img:'Ícone minimalista de halter.png',endpoint:null
     }
     static fechar(){
         document.getElementById('divLogin').remove()
@@ -21,24 +21,25 @@ class Login{
         let mat=document.getElementById('f_username').value
         let pas=document.getElementById('f_senha').value
         
-        const endPoint=endp+=`?matricula=${mat}&senha=${pas}`
+        const endPoint=`${endp}?matricula=${mat}&senha=${pas}`
 
         fetch(endPoint)
         .then(res=>res.json())
         .then(res=>{
             if(res){
-                this.logado=true
-                this.matLogado=mat
-                this.nomeLogado=res.nome
-                this.acessoLogado=res.acesso 
+                sessionStorage.setItem('logado','true')
+                sessionStorage.setItem('matLogado',mat)
+                sessionStorage.setItem('nomeLogado',res.nome)
+                sessionStorage.setItem('acessoLogado',res.acesso)
                 
                 this.callback_ok()
                 this.fechar()
             }else{
-                this.logado=false
-                this.matLogado=null
-                this.nomeLogado=null
-                this.acessoLogado=null    
+                sessionStorage.setItem('logado','false')
+                sessionStorage.setItem('matLogado','')
+                sessionStorage.setItem('nomeLogado','')
+                sessionStorage.setItem('acessoLogado','')                
+   
                 this.callback_naook()  
             }
         })
@@ -46,14 +47,13 @@ class Login{
     }
 
 
-    static Login(callback_ok,callback_naook,config=null,endPoint){
+    static Login(callback_ok,callback_naook,config){
 
-        //config.cor config.img
-        if(config!=null){
-            this.config=config
-        }
+        //config.cor config.img config.endpoint
+        this.config=config
         this.callback_ok=()=>{callback_ok()}
         this.callback_naook=()=>{callback_naook()}
+
         
         this.estiloCss=`
             .fundoLogin{display:flex;justify-content:center;align-items:center;width:100%;height:100vh;position:absolute;top:0;left:0;background-color:rgba(0,0,0,0.75);} 
@@ -106,7 +106,7 @@ class Login{
         document.head.appendChild(estilo)
 
         document.querySelector("#btnLogin").addEventListener("click",()=>{
-            this.verificaLogin(endPoint)
+            this.verificaLogin(this.config.endpoint)
         })
         document.querySelector("#btnCancelar").addEventListener("click",()=>{
             this.fechar()
